@@ -1,6 +1,8 @@
 from typing import TypedDict, List, Annotated
 from langgraph.graph import END, StateGraph
+from IPython.display import display, Image
 import operator
+import os
 
 
 class SimpleState(TypedDict):
@@ -29,9 +31,20 @@ graph.add_conditional_edges(
     "increment", should_continue, {"continue": "increment", "stop": END}
 )
 
-app = graph.compile()
+graph = graph.compile()
 
+# View
+png_data = graph.get_graph().draw_mermaid_png()
+
+# Make sure the diagram directory exists
+os.makedirs("diagram", exist_ok=True)
+ 
+image_path = os.path.join("diagram", "graph.png")
+ 
+with open(image_path, "wb") as f:
+    f.write(png_data)
+ 
 state = {"count": 0, "sum": 0, "history": []}
 
-result = app.invoke(state)
+result = graph.invoke(state)
 print(result)
